@@ -38,9 +38,15 @@ class AwsPollyAlternateFileProvider
 
     public function createAlternateFile($text, $options) {
 
+        if($options['TextType'] == 'ssml'){
+            $ssmlService = new SsmlCreator();
+            $ssmlText = $ssmlService->buildSsmlText($text);
+        }
+
         try {
             $result = $this->pollyClient->synthesizeSpeech([
-                'Text' => $text,
+                'Text' => $ssmlText ? $ssmlText : $text,
+                'TextType' => $options['TextType'],
                 'OutputFormat' => $options['format'],
                 'VoiceId' => $options['voice'],
             ]);
@@ -54,12 +60,14 @@ class AwsPollyAlternateFileProvider
 
     public function createAlternateFileTask($text, $options) {
 
-        $ssmlService = new SsmlCreator();
-        $ssmlText = $ssmlService->buildSsmlText($text);
+        if($options['TextType'] == 'ssml'){
+            $ssmlService = new SsmlCreator();
+            $ssmlText = $ssmlService->buildSsmlText($text);
+        }
 
         try {
             $result = $this->pollyClient->startSpeechSynthesisTask([
-                'Text' => $ssmlText,
+                'Text' => $ssmlText ? $ssmlText : $text,
                 'TextType' => $options['TextType'],
                 'OutputFormat' => $options['format'],
                 'OutputS3BucketName' => $options['S3Bucket'],
