@@ -8,6 +8,10 @@ require '../vendor/autoload.php';
 use Aws\Exception\AwsException;
 use Aws\Polly\PollyClient;
 use Aws\S3\S3Client;
+use CidiLabs\Polly\SsmlCreator;
+
+use DOMDocument;
+use DOMXPath;
 
 class AwsPollyAlternateFileProvider
 {
@@ -28,11 +32,11 @@ class AwsPollyAlternateFileProvider
             'region' => 'us-east-1',
             'version' => '2006-03-01'
         ]);
+
+
     }
 
     public function createAlternateFile($text, $options) {
-
-        $text = $this->filterHtml($text);
 
         try {
             $result = $this->pollyClient->synthesizeSpeech([
@@ -50,16 +54,19 @@ class AwsPollyAlternateFileProvider
 
     public function createAlternateFileTask($text, $options) {
 
-        $text = $this->filterHtml($text);
+        $ssmlService = new SsmlCreator();
+        $ssmlText = $ssmlService->buildSsmlText($text);
 
         try {
             $result = $this->pollyClient->startSpeechSynthesisTask([
-                'Text' => $text,
+                'Text' => $ssmlText,
+                'TextType' => $options['TextType'],
                 'OutputFormat' => $options['format'],
                 'OutputS3BucketName' => $options['S3Bucket'],
                 'VoiceId' => $options['voice'],
             ]);
             $taskId = $result['SynthesisTask']['TaskId'];
+            var_dump($result);
             return $taskId;
         } catch (AwsException $e) {
             echo $e->getMessage();
@@ -79,6 +86,7 @@ class AwsPollyAlternateFileProvider
             }else {
                 return false;
             }
+            var_dump($result);
         } catch (AwsException $e) {
             echo $e->getMessage();
             echo "\n";
@@ -127,13 +135,5 @@ class AwsPollyAlternateFileProvider
         }
     }
 
-    public function filterHtml($html) {
 
-        if($html != strip_tags($html)) {
-            return strip_tags($html);
-        } else {
-            return $html;
-        }
-
-    }
 }
