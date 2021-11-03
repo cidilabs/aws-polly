@@ -74,7 +74,7 @@ class AwsPollyAlternateFileProvider
                 'VoiceId' => $options['voice'],
             ]);
             $taskId = $result['SynthesisTask']['TaskId'];
-            var_dump($result);
+//            var_dump($result);
             return $taskId;
         } catch (AwsException $e) {
             echo $e->getMessage();
@@ -90,11 +90,23 @@ class AwsPollyAlternateFileProvider
                 'TaskId' => $taskId,
             ]);
             if($result["SynthesisTask"]["TaskStatus"] == "completed"){
-                return true;
+                return $result["SynthesisTask"]["OutputUri"];
             }else {
                 return false;
             }
-            var_dump($result);
+        } catch (AwsException $e) {
+            echo $e->getMessage();
+            echo "\n";
+        }
+    }
+
+    public function getPublicUrl($taskId) {
+
+        try {
+            $result = $this->pollyClient->getSpeechSynthesisTask([
+                'TaskId' => $taskId,
+            ]);
+          var_dump($result);
         } catch (AwsException $e) {
             echo $e->getMessage();
             echo "\n";

@@ -31,7 +31,7 @@ class SsmlCreator
         'q' => array('ssml_tag' => 'p' )
     );
 
-    public function __construct(SsmlBuilder $ssml = null)
+    public function __construct(SsmlCreator $ssml = null)
     {
 
     }
