@@ -1,0 +1,33 @@
+{
+    "name": "cidilabs/polly",
+    "type": "library",
+    "description": "AWS Polly Library",
+    "license": "MIT",
+    "authors": [
+        {
+            "name": "Chuck Crandall",
+            "email": "chuck@cidilabs.com"
+        },
+        {
+            "name": "Scott Cooper",
+            "email": "scott@cidilabs.com"
+        }
+    ],
+    "require": {
+        "php": ">=7.2.0",
+        "guzzlehttp/guzzle": "^7.0",
+        "aws/aws-sdk-php": "^3.198"
+    },
+    "scripts": {
+        "test": "./vendor/bin/phpunit tests"
+    },
+    "autoload": {
+        "classmap": [
+            "src/",
+            "tests/"
+        ]
+    },
+    "require-dev": {
+        "phpunit/phpunit": "^8"
+    }
+}
