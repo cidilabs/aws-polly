@@ -3,7 +3,7 @@
 namespace CidiLabs\Polly;
 
 
-require 'vendor/autoload.php';
+require '../vendor/autoload.php';
 
 use Aws\Exception\AwsException;
 use Aws\Polly\PollyClient;
