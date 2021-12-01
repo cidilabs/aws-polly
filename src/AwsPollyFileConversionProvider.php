@@ -2,16 +2,10 @@
 
 namespace CidiLabs\Polly;
 
-
-require '../vendor/autoload.php';
-
 use Aws\Exception\AwsException;
 use Aws\Polly\PollyClient;
 use Aws\S3\S3Client;
 use CidiLabs\Polly\SsmlCreator;
-
-use DOMDocument;
-use DOMXPath;
 
 class AwsPollyFileConversionProvider
 {

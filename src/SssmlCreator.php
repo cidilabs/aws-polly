@@ -6,9 +6,6 @@ use DOMDocument;
 
 class SsmlCreator
 {
-
-    private $ssml;
-
     private $html_elements = array( 'html','body','p','pre','span','div','b','non-emphasis', 'i', 'font', 'h1', 'h2', 'h3', 'h4', 'h5', 'h6', 'blockquote','q');
 
     private $html_element_map_to_ssml = array(
