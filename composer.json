@@ -1,5 +1,5 @@
 {
-    "name": "cidilabs/polly",
+    "name": "cidilabs/aws-polly",
     "type": "library",
     "description": "AWS Polly Library",
     "license": "MIT",
