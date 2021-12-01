@@ -13,7 +13,7 @@ use CidiLabs\Polly\SsmlCreator;
 use DOMDocument;
 use DOMXPath;
 
-class AwsPollyAlternateFileProvider
+class AwsPollyFileConversionProvider
 {
     protected $pollyClient;
 
@@ -36,16 +36,16 @@ class AwsPollyAlternateFileProvider
 
     }
 
-    public function createAlternateFile($text, $options) {
+    public function convertFile($options) {
 
         if($options['TextType'] == 'ssml'){
             $ssmlService = new SsmlCreator();
-            $ssmlText = $ssmlService->buildSsmlText($text);
+            $ssmlText = $ssmlService->buildSsmlText($options['text']);
         }
 
         try {
             $result = $this->pollyClient->synthesizeSpeech([
-                'Text' => $ssmlText ? $ssmlText : $text,
+                'Text' => $ssmlText ? $ssmlText : $options['text'],
                 'TextType' => $options['TextType'],
                 'OutputFormat' => $options['format'],
                 'VoiceId' => $options['voice'],
@@ -58,23 +58,23 @@ class AwsPollyAlternateFileProvider
 
     }
 
-    public function createAlternateFileTask($text, $options) {
+    public function startFileConversion($options) {
 
         if($options['TextType'] == 'ssml'){
             $ssmlService = new SsmlCreator();
-            $ssmlText = $ssmlService->buildSsmlText($text);
+            $ssmlText = $ssmlService->buildSsmlText($options['text']);
         }
 
         try {
             $result = $this->pollyClient->startSpeechSynthesisTask([
-                'Text' => $ssmlText ? $ssmlText : $text,
+                'Text' => $ssmlText ? $ssmlText : $options['text'],
                 'TextType' => $options['TextType'],
                 'OutputFormat' => $options['format'],
                 'OutputS3BucketName' => $options['S3Bucket'],
                 'VoiceId' => $options['voice'],
             ]);
             $taskId = $result['SynthesisTask']['TaskId'];
-//            var_dump($result);
+
             return $taskId;
         } catch (AwsException $e) {
             echo $e->getMessage();
@@ -100,7 +100,7 @@ class AwsPollyAlternateFileProvider
         }
     }
 
-    public function getPublicUrl($taskId) {
+    public function getFileUrl($taskId) {
 
         try {
             $result = $this->pollyClient->getSpeechSynthesisTask([
