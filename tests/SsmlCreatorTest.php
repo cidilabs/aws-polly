@@ -4,22 +4,139 @@ use CidiLabs\Polly\SsmlCreator;
 
 class SsmlCreatorTest extends AwsPollyTestCase
 {
-    public function testHtmlToSsml()
+
+    public function testValidHtmlToSsml()
     {
+        $html = $this->getValidHtml();
 
-        $html = "<h1>This is a sample header</h1><div>This is a sample text to see exactly how the <h4>text converts over</h4></div>";
-
-        $ssml = "<speak><amazon:auto-breaths><emphasis level=\"strong\">This is a sample header</emphasis><p>This is a sample text to see exactly how the <emphasis level=\"moderate\">text converts over</emphasis></p></amazon:auto-breaths></speak>";
-
-        $ssmlMock = $this->getMockBuilder(SsmlCreator::class)
-            ->onlyMethods(array('buildSsmlText'))
-            ->getMock();
-
-        $ssmlMock->expects($this->once())
-            ->method('buildSsmlText')
-            ->will($this->returnValue($ssml));
-
-        $this->assertEquals($ssmlMock->buildSsmlText($html), $ssml);
+        $expectedSsml = $this->getValidSsml();
+ 
+        $ssmlCreator = new SsmlCreator();
+        $ssml = $ssmlCreator->buildSsmlText($html);
+        $this->assertNotEmpty($ssml, "SSML not empty.");
+        $this->assertEquals($ssml, $expectedSsml);
     }
+
+    public function testInvalidHtmlToSsml()
+    {
+        $html = $this->getInvalidHtml();
+
+        $expectedSsml = $this->getInvalidSsml();
+ 
+        $ssmlCreator = new SsmlCreator();
+        $ssml = $ssmlCreator->buildSsmlText($html);
+        $this->assertNotEmpty($ssml, "SSML not empty.");
+        $this->assertEquals($ssml, $expectedSsml);
+    }
+
+    public function testHtmlUlToSsml()
+    {
+        $html = $this->getValidUlHtml();
+
+        $expectedSsml = $this->getValidUlSsml();
+ 
+        $ssmlCreator = new SsmlCreator();
+        $ssml = $ssmlCreator->buildSsmlText($html);
+        $this->assertNotEmpty($ssml, "SSML not empty.");
+        $this->assertEquals($ssml, $expectedSsml);
+    }
+
+    public function testHtmlOlToSsml()
+    {
+        $html = $this->getValidOlHtml();
+
+        $expectedSsml = $this->getValidOlSsml();
+ 
+        $ssmlCreator = new SsmlCreator();
+        $ssml = $ssmlCreator->buildSsmlText($html);
+        $this->assertNotEmpty($ssml, "SSML not empty.");
+        $this->assertEquals($ssml, $expectedSsml);
+    }
+
+    public function testHtmlTableToSsml()
+    {
+        $html = $this->getValidTableHtml();
+
+        $expectedSsml = $this->getValidTableSsml();
+ 
+        $ssmlCreator = new SsmlCreator();
+        $ssml = $ssmlCreator->buildSsmlText($html);
+        $this->assertNotEmpty($ssml, "SSML not empty.");
+        $this->assertEquals($ssml, $expectedSsml);
+    }
+
+    public function testHtmlBodyToSsml()
+    {
+        $html = $this->getValidBodyHtml();
+
+        $expectedSsml = $this->getValidBodySsml();
+
+        $ssmlCreator = new SsmlCreator();
+        $ssml = $ssmlCreator->buildSsmlText($html);
+        $this->assertNotEmpty($ssml, "SSML not empty.");
+        $this->assertEquals($ssml, $expectedSsml);
+    }
+
+    public function testHtmlHeadersToSsml()
+    {
+        $html = $this->getValidHeadersHtml();
+
+        $expectedSsml = $this->getValidHeadersSsml();
+ 
+        $ssmlCreator = new SsmlCreator();
+        $ssml = $ssmlCreator->buildSsmlText($html);
+        $this->assertNotEmpty($ssml, "SSML not empty.");
+        $this->assertEquals($ssml, $expectedSsml);
+    }
+
+   public function testHtmlParagraphToSsml()
+   {
+       $html = $this->getValidParagraphHtml();
+
+       $expectedSsml = $this->getValidParagraphSsml();
+
+       $ssmlCreator = new SsmlCreator();
+       $ssml = $ssmlCreator->buildSsmlText($html);
+       $this->assertNotEmpty($ssml, "SSML not empty.");
+       $this->assertEquals($ssml, $expectedSsml);
+   }
+
+   public function testHtmlBrToSsml()
+   {
+       $html = $this->getValidBrHtml();
+
+       $expectedSsml = $this->getValidBrSsml();
+
+       $ssmlCreator = new SsmlCreator();
+       $ssml = $ssmlCreator->buildSsmlText($html);
+       $this->assertNotEmpty($ssml, "SSML not empty.");
+       $this->assertEquals($ssml, $expectedSsml);
+   }
+
+   public function testHtmlStrongToSsml()
+   {
+       $html = $this->getValidStrongHtml();
+
+       $expectedSsml = $this->getValidStrongSsml();
+
+       $ssmlCreator = new SsmlCreator();
+       $ssml = $ssmlCreator->buildSsmlText($html);
+       $this->assertNotEmpty($ssml, "SSML not empty.");
+       $this->assertEquals($ssml, $expectedSsml);
+   }
+
+   public function testHtmlBoldToSsml()
+   {
+       $html = $this->getValidBoldHtml();
+
+       $expectedSsml = $this->getValidBoldSsml();
+
+       $ssmlCreator = new SsmlCreator();
+       $ssml = $ssmlCreator->buildSsmlText($html);
+       $this->assertNotEmpty($ssml, "SSML not empty.");
+       $this->assertEquals($ssml, $expectedSsml);
+   }
+
+
 
 }

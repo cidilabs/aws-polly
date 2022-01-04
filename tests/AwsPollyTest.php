@@ -18,7 +18,8 @@ class AwsPollyTest extends AwsPollyTestCase {
             'format' => 'mp3',
             'S3Bucket' => 'cidilabs-polly',
             'voice' => 'Joanna',
-            'TextType' => 'ssml'
+            'TextType' => 'ssml',
+            'ssml' => $this->getValidSsml(),
         ];
 
         $awsPollyMock = $this->getMockBuilder(AwsPollyAlternateFileProvider::class)
@@ -29,7 +30,7 @@ class AwsPollyTest extends AwsPollyTestCase {
             ->method('createAlternateFileTask')
             ->will($this->returnValue($taskId));
 
-        $this->assertEquals($awsPollyMock->createAlternateFileTask($text,$options), $taskId);
+        $this->assertEquals($awsPollyMock->createAlternateFileTask($options['ssml'],$options), $taskId);
 
     }
 
