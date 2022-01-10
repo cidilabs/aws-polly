@@ -73,7 +73,7 @@ class AwsPollyTestCase extends TestCase
     {
         return '<speak><amazon:auto-breaths><emphasis level="strong">This is a sample header</emphasis><p>This is a sample text to see exactly how the <emphasis level=\"moderate\">text converts over</emphasis></p></amazon:auto-breaths></speak>';
     }
-
+  
     protected function getValidHeadersHtml()
     {
         return '<html><body><h1>This is heading 1</h1><h2>This is heading 2</h2><h3>This is heading 3</h3><h4>This is heading 4</h4><h5>This is heading 5</h5><h6>This is heading 6</h6></body></html>';
@@ -123,7 +123,5 @@ class AwsPollyTestCase extends TestCase
     {
         return '<speak><amazon:auto-breaths><p>This text is normal.</p><p><emphasis level="moderate">This text is bold.</emphasis></p></amazon:auto-breaths></speak>';
     }
-
-
 
 }
