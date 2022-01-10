@@ -6,12 +6,15 @@ use DOMDocument;
 
 class SsmlCreator
 {
-    private $html_elements = array( 'html','body','p','pre','span','div','b','non-emphasis', 'i', 'font', 'h1', 'h2', 'h3', 'h4', 'h5', 'h6', 'blockquote','q');
+
+    private $ssml;
+
+    private $html_elements = array( 'html','body','p','pre','span','div','b','non-emphasis', 'i', 'font', 'h1', 'h2', 'h3', 'h4', 'h5', 'h6', 'blockquote','q','table','th','tr','td','ol','ul','li', 'br' , 'strong','b');
 
     private $html_element_map_to_ssml = array(
         'html' => array('ssml_tag' => 'speak' ),
         'body' => array('ssml_tag' => 'amazon:auto-breaths' ),
-        'p' => array('ssml_tag' => 'p' ),
+        // 'p' => array('ssml_tag' => 'p' ),
         'pre' => array('ssml_tag' => 'p' ),
         'span' => array('ssml_tag' => 'p' ),
         'div' => array('ssml_tag' => 'p' ),
@@ -25,7 +28,18 @@ class SsmlCreator
         'h5' => array('ssml_tag' => 'emphasis' , 'options' => array( 'level' => 'reduced')),
         'h6' => array('ssml_tag' => 'emphasis' , 'options' => array( 'level' => 'reduced')),
         'blockquote' => array('ssml_tag' => 'p' ),
-        'q' => array('ssml_tag' => 'p' )
+        'q' => array('ssml_tag' => 'p' ),
+        'table' => array('ssml_tag' => 'p' ),
+        'th' => array('ssml_tag' => 'break', 'options' => array( 'strength' => 'medium')),
+        'tr' => array('ssml_tag' => 'p'),
+        'td' => array('ssml_tag' => 'break', 'options' => array( 'strength' => 'medium')),
+        'ol' => array('ssml_tag' => 'p' ),
+        'ul' => array('ssml_tag' => 'p' ),
+        'li' => array('ssml_tag' => 'break', 'options' => array( 'strength' => 'medium')),
+        'br' => array('ssml_tag' => 'break', 'options' => array( 'strength' => 'medium')),
+        'strong' => array('ssml_tag' => 'emphasis' , 'options' => array( 'level' => 'moderate')),
+        'b' => array('ssml_tag' => 'emphasis' , 'options' => array( 'level' => 'moderate')),
+
     );
 
     public function __construct(SsmlCreator $ssml = null)
@@ -43,24 +57,29 @@ class SsmlCreator
         $html->removeChild($html->doctype);
 
 
-        foreach($this->html_elements as $element){
-            $elements = $html->getElementsByTagName($element);
-            if(!empty($elements)) {
+        foreach ($this->html_elements as $element) {
+            if ($element == 'p') {
+                continue;
+            } else {
+                $elements = $html->getElementsByTagName($element);
+                while ($elements->length > 0) {
 
+                    foreach ($elements as $ele) {
+                        $nodeDiv = $this->changeTagName($ele, $this->html_element_map_to_ssml[$element]['ssml_tag']);
 
-                foreach($elements as $ele){
-                    $nodeDiv = $this->changeTagName($ele,$this->html_element_map_to_ssml[$element]['ssml_tag']);
-                    if (!empty($this->html_element_map_to_ssml[$element]['options'])) {
-                        foreach ($this->html_element_map_to_ssml[$element]['options'] as $key => $attribute) {
-                            $domAttribute = $nodeDiv->setAttribute($key, $attribute);
+                        if (!empty($this->html_element_map_to_ssml[$element]['options'])) {
+                            foreach ($this->html_element_map_to_ssml[$element]['options'] as $key => $attribute) {
+                                $domAttribute = $nodeDiv->setAttribute($key, $attribute);
+                            }
                         }
                     }
+                    $elements = $html->getElementsByTagName($element);
+
                 }
             }
+
         }
-
-        return  trim($html->saveHTML(), "\n\r\t\v\0");
-
+        return trim($html->saveHTML(), "\n\r\t\v\0");
     }
 
     public function stripHTML($html)
@@ -94,6 +113,7 @@ class SsmlCreator
         }
         $node->parentNode->replaceChild( $newnode, $node );
         return $newnode;
+
     }
 
 

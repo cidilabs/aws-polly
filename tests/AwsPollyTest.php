@@ -13,7 +13,7 @@ class AwsPollyTest extends AwsPollyTestCase {
             'S3Bucket' => 'cidilabs-polly',
             'voice' => 'Joanna',
             'TextType' => 'ssml',
-            'text' =>  $this->getValidHtml(),
+            'ssml' => $this->getValidSsml(),
         ];
 
         $awsPollyMock = $this->getMockBuilder(AwsPollyFileConversionProvider::class)
@@ -24,7 +24,7 @@ class AwsPollyTest extends AwsPollyTestCase {
             ->method('startFileConversion')
             ->will($this->returnValue($taskId));
 
-        $this->assertEquals($awsPollyMock->startFileConversion($options), $taskId);
+        $this->assertEquals($awsPollyMock->createAlternateFileTask($options['ssml'],$options), $taskId);
 
     }
 
