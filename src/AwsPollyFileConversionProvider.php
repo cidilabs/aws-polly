@@ -2,6 +2,7 @@
 
 namespace CidiLabs\Polly;
 
+use Aws\AwsClient;
 use Aws\Exception\AwsException;
 use Aws\Polly\PollyClient;
 use Aws\S3\S3Client;
@@ -13,7 +14,22 @@ class AwsPollyFileConversionProvider
 
     protected $s3Client;
 
-    public function __construct($pollyClient = null, $s3Client = null)
+    // Response object
+    private $responseObject = [
+        'data' => [
+            'taskId' => '',
+            'filePath' => '',
+            'relatedFiles' => [],
+            'status' => ''
+        ],
+        'errors' => []
+    ];
+
+    private $outputDir;
+    private $s3bucket;
+    private $pollyFormat;
+
+    public function __construct($pollyClient = null, $s3Client = null, $outputDir = 'alternates', $pollyFormat = 'mp3')
     {
         $this->pollyClient = new PollyClient([
             'profile' => 'default',
@@ -27,10 +43,17 @@ class AwsPollyFileConversionProvider
             'version' => '2006-03-01'
         ]);
 
+        $this->outputDir = $outputDir;
+        $this->s3bucket = $_ENV['AWS_S3_BUCKET_NAME'];
+        $this->pollyFormat = $pollyFormat;
 
     }
 
-    public function convertFile($options) {
+    /*
+     * Convert a file onDemand. Not to recieve a TaskId and check back the status.
+     * Currently not used.
+     */
+    public function startFileConversion($options) {
 
         if($options['TextType'] == 'ssml'){
             $ssmlService = new SsmlCreator();
@@ -45,6 +68,7 @@ class AwsPollyFileConversionProvider
                 'VoiceId' => $options['voice'],
             ]);
             return $result;
+
         } catch (AwsException $e) {
             echo $e->getMessage();
             echo "\n";
@@ -52,7 +76,8 @@ class AwsPollyFileConversionProvider
 
     }
 
-    public function startFileConversion($options) {
+
+    public function convertFile($options) {
 
         if($options['TextType'] == 'ssml'){
             $ssmlService = new SsmlCreator();
@@ -63,17 +88,17 @@ class AwsPollyFileConversionProvider
             $result = $this->pollyClient->startSpeechSynthesisTask([
                 'Text' => $ssmlText ? $ssmlText : $options['text'],
                 'TextType' => $options['TextType'],
-                'OutputFormat' => $options['format'],
+                'OutputFormat' => $this->pollyFormat,
                 'OutputS3BucketName' => $options['S3Bucket'],
                 'VoiceId' => $options['voice'],
             ]);
-            $taskId = $result['SynthesisTask']['TaskId'];
+            $this->responseObject['data']['taskId'] = $result['SynthesisTask']['TaskId'];
 
-            return $taskId;
         } catch (AwsException $e) {
-            echo $e->getMessage();
-            echo "\n";
+            $this->responseObject['errors'][] = $e->getMessage();
         }
+
+        return $this->responseObject;
 
     }
 
@@ -83,15 +108,18 @@ class AwsPollyFileConversionProvider
             $result = $this->pollyClient->getSpeechSynthesisTask([
                 'TaskId' => $taskId,
             ]);
+
             if($result["SynthesisTask"]["TaskStatus"] == "completed"){
-                return $result["SynthesisTask"]["OutputUri"];
+                $this->responseObject['data']['status'] = true;
             }else {
-                return false;
+                $this->responseObject['data']['status'] = false;
             }
         } catch (AwsException $e) {
-            echo $e->getMessage();
-            echo "\n";
+            $this->responseObject['errors'][] = $e->getMessage();
+
         }
+
+        return  $this->responseObject;
     }
 
     public function getFileUrl($taskId) {
@@ -100,11 +128,15 @@ class AwsPollyFileConversionProvider
             $result = $this->pollyClient->getSpeechSynthesisTask([
                 'TaskId' => $taskId,
             ]);
-          var_dump($result);
+
+            $this->responseObject['data']['filePath'] = $this->downloadFile($this->s3bucket,"{$taskId}.{$this->pollyFormat}");
+            $this->responseObject['data']['status'] = true;
         } catch (AwsException $e) {
-            echo $e->getMessage();
-            echo "\n";
+            $this->responseObject['errors'][] = $e->getMessage();
         }
+
+        return  $this->responseObject;
+
     }
 
     public function getVoices()
@@ -124,29 +156,46 @@ class AwsPollyFileConversionProvider
     public function downloadFile($bucket, $key)
     {
         try {
+            if(!is_dir($this->outputDir)){
+                mkdir($this->outputDir,0755);
+            }
+            $filename = "{$this->outputDir}/{$key}";
             $result = $this->s3Client->getObject([
                 'Bucket' => $bucket,
-                'Key'    => $key
+                'Key'    => $key,
+                'SaveAs' => $filename
             ]);
 
-            return $result;
+            return $filename;
         } catch (AwsException $e) {
-            echo $e->getMessage();
-            echo "\n";
+            $this->responseObject['errors'][] = $e->getMessage();
         }
     }
 
-    public function deleteFile($bucket, $key) {
+    public function deleteFile($fileUrl) {
+        if (file_exists($fileUrl)) {
+            unlink($fileUrl);
+            $this->deleteFileOnS3($this->s3bucket,$this->responseObject['data']['taskId']);
+        } else {
+            $this->responseObject['errors'][] = "File not found";
+        }
+
+        return $this->responseObject;
+    }
+
+    private function deleteFileOnS3($bucket, $key) {
         try {
+            $filename = "{$this->outputDir}/{$key}.{$this->pollyFormat}";
+
             $result = $this->s3Client->deleteObject([
                 'Bucket' => $bucket,
-                'Key'    => $key
+                'Key'    => $filename
             ]);
-            return $result;
         } catch (AwsException $e) {
-            echo $e->getMessage();
-            echo "\n";
+            $this->responseObject['errors'][] = $e->getMessage();
         }
+
+        return $this->responseObject;
     }
 
 

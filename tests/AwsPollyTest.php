@@ -4,6 +4,12 @@ use CidiLabs\Polly\AwsPollyFileConversionProvider;
 
 class AwsPollyTest extends AwsPollyTestCase {
 
+    public function testPollyInit() {
+        $polly = new AwsPollyFileConversionProvider();
+
+        $this->assertEquals(true, is_object($polly));
+    }
+
     public function testPollyToTaskID() {
 
         $taskId = '01ec455e-7cb0-4d6f-80b4-b071de98c408';
@@ -17,14 +23,14 @@ class AwsPollyTest extends AwsPollyTestCase {
         ];
 
         $awsPollyMock = $this->getMockBuilder(AwsPollyFileConversionProvider::class)
-            ->onlyMethods(array('startFileConversion'))
+            ->onlyMethods(array('convertFile'))
             ->getMock();
 
         $awsPollyMock->expects($this->once())
-            ->method('startFileConversion')
+            ->method('convertFile')
             ->will($this->returnValue($taskId));
 
-        $this->assertEquals($awsPollyMock->createAlternateFileTask($options['ssml'],$options), $taskId);
+        $this->assertEquals($awsPollyMock->convertFile($options), $taskId);
 
     }
 
