@@ -52,7 +52,7 @@ class AwsPollyFileConversionProvider
     public function supports()
     {
         return [
-            'input' => ['html'],
+            'input' => ['pdf', 'doc'],
             'output' => ['mp3']
         ];
     }
