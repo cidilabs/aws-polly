@@ -130,7 +130,7 @@ class AwsPollyFileConversionProvider
         return  $this->responseObject;
     }
 
-    public function getFileUrl($taskId) {
+    public function getFileUrl($taskId, $options = []) {
 
         try {
             $result = $this->pollyClient->getSpeechSynthesisTask([
