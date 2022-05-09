@@ -49,6 +49,14 @@ class AwsPollyFileConversionProvider
 
     }
 
+    public function supports()
+    {
+        return [
+            'input' => ['html'],
+            'output' => ['mp3']
+        ];
+    }
+
     /*
      * Convert a file onDemand. Not to recieve a TaskId and check back the status.
      * Currently not used.
