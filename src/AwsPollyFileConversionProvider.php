@@ -32,13 +32,11 @@ class AwsPollyFileConversionProvider
     public function __construct($pollyClient = null, $s3Client = null, $outputDir = 'alternates', $pollyFormat = 'mp3')
     {
         $this->pollyClient = new PollyClient([
-            'profile' => 'default',
             'version' => '2016-06-10',
             'region' => 'us-east-1'
         ]);
 
         $this->s3Client = new S3Client([
-            'profile' => 'default',
             'region' => 'us-east-1',
             'version' => '2006-03-01'
         ]);
