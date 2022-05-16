@@ -7,79 +7,46 @@ use DOMDocument;
 class SsmlCreator
 {
 
-    private $ssml;
 
     private $html_elements = array( 'html','body','p','pre','span','div','b','non-emphasis', 'i', 'font', 'h1', 'h2', 'h3', 'h4', 'h5', 'h6', 'blockquote','q','table','th','tr','td','ol','ul','li', 'br' , 'strong','b');
 
     private $html_element_map_to_ssml = array(
-        'html' => array('ssml_tag' => 'speak'),
-        'body' => array('ssml_tag' => 'amazon:auto-breaths'),
-        // 'p' => array('ssml_tag' => 'p' ),
-        'pre' => array('ssml_tag' => 'p' ),
-        'span' => array('ssml_tag' => 'p' ),
-        'div' => array('ssml_tag' => 'p'),
-        'b' => array('ssml_tag' => 'emphasis' , 'options' => array( 'level' => 'moderate')),
-        'i' => array('ssml_tag' => 'amazon:effect' , 'options' => array('name' => 'whispered')),
-        'font' => array('ssml_tag' => 'emphasis' , 'options' => array( 'level' => 'moderate')),
-        'h1' => array('ssml_tag' => 'emphasis' , 'options' => array( 'level' => 'strong')),
-        'h2' => array('ssml_tag' => 'emphasis' , 'options' => array( 'level' => 'strong')),
-        'h3' => array('ssml_tag' => 'emphasis' , 'options' => array( 'level' => 'moderate')),
-        'h4' => array('ssml_tag' => 'emphasis' , 'options' => array( 'level' => 'moderate')),
-        'h5' => array('ssml_tag' => 'emphasis' , 'options' => array( 'level' => 'reduced')),
-        'h6' => array('ssml_tag' => 'emphasis' , 'options' => array( 'level' => 'reduced')),
-        'blockquote' => array('ssml_tag' => 'p'),
-        'q' => array('ssml_tag' => 'emphasis' , 'options' => array( 'level' => 'moderate')),
-        'table' => array('ssml_tag' => 'p'),
-        'th' => array('ssml_tag' => 'emphasis' , 'options' => array( 'level' => 'strong')),
-        'tr' => array('ssml_tag' => 'emphasis' , 'options' => array( 'level' => 'moderate')),
-        'td' => array('ssml_tag' => 'emphasis' , 'options' => array( 'level' => 'moderate')),
-        'ol' => array('ssml_tag' => 'emphasis' , 'options' => array( 'level' => 'moderate')),
-        'ul' => array('ssml_tag' => 'emphasis' , 'options' => array( 'level' => 'moderate')),
-        'li' => array('ssml_tag' => 'emphasis' , 'options' => array( 'level' => 'moderate')),
-        'br' => array('ssml_tag' => 'break', 'options' => array( 'strength' => 'medium', 'time' => '3s')),
-        'strong' => array('ssml_tag' => 'emphasis' , 'options' => array( 'level' => 'strong')),
+        'html' => array('ssml_tag' => 'speak','alternateTag' => ''),
+        'body' => array('ssml_tag' => 'amazon:auto-breaths','alternateTag' => ''),
+        'p' => array('ssml_tag' => 'p' ,'alternateTag' => 'break','alternateOptions' => array( 'strength' => 'medium', 'time' => '3s')),
+        'pre' => array('ssml_tag' => 'p' ,'alternateTag' => 'break','alternateOptions' => array( 'strength' => 'medium', 'time' => '3s')),
+        'span' => array('ssml_tag' => 'p' ,'alternateTag' => 'break','alternateOptions' => array( 'strength' => 'medium', 'time' => '3s')),
+        'div' => array('ssml_tag' => 'p','alternateTag' => 'break','alternateOptions' => array( 'strength' => 'medium', 'time' => '3s')),
+        'b' => array('ssml_tag' => 'emphasis' , 'options' => array( 'level' => 'moderate'),'alternateTag' => ''),
+        'i' => array('ssml_tag' => 'amazon:effect' , 'options' => array('name' => 'whispered'),'alternateTag' => ''),
+        'font' => array('ssml_tag' => 'emphasis' , 'options' => array( 'level' => 'moderate'),'alternateTag' => ''),
+        'h1' => array('ssml_tag' => 'emphasis' , 'options' => array( 'level' => 'strong'),'alternateTag' => ''),
+        'h2' => array('ssml_tag' => 'emphasis' , 'options' => array( 'level' => 'strong'),'alternateTag' => ''),
+        'h3' => array('ssml_tag' => 'emphasis' , 'options' => array( 'level' => 'moderate'),'alternateTag' => ''),
+        'h4' => array('ssml_tag' => 'emphasis' , 'options' => array( 'level' => 'moderate'),'alternateTag' => ''),
+        'h5' => array('ssml_tag' => 'emphasis' , 'options' => array( 'level' => 'reduced'),'alternateTag' => ''),
+        'h6' => array('ssml_tag' => 'emphasis' , 'options' => array( 'level' => 'reduced'),'alternateTag' => ''),
+        'blockquote' => array('ssml_tag' => 'p','alternateTag' => 'break','alternateOptions' => array( 'strength' => 'medium', 'time' => '3s')),
+        'q' => array('ssml_tag' => 'emphasis' , 'options' => array( 'level' => 'moderate'),'alternateTag' => ''),
+        'table' => array('ssml_tag' => 'p','alternateTag' => 'break','alternateOptions' => array( 'strength' => 'medium', 'time' => '3s')),
+        'th' => array('ssml_tag' => 'emphasis' , 'options' => array( 'level' => 'strong'),'alternateTag' => ''),
+        'tr' => array('ssml_tag' => 'emphasis' , 'options' => array( 'level' => 'moderate'),'alternateTag' => 'break','alternateOptions' => array( 'strength' => 'medium', 'time' => '3s')),
+        'td' => array('ssml_tag' => 'emphasis' , 'options' => array( 'level' => 'moderate'),'alternateTag' => 'break','alternateOptions' => array( 'strength' => 'medium', 'time' => '3s')),
+        'ol' => array('ssml_tag' => 'emphasis' , 'options' => array( 'level' => 'moderate'),'alternateTag' => ''),
+        'ul' => array('ssml_tag' => 'emphasis' , 'options' => array( 'level' => 'moderate'),'alternateTag' => ''),
+        'li' => array('ssml_tag' => 'emphasis' , 'options' => array( 'level' => 'moderate'),'alternateTag' => ''),
+        'br' => array('ssml_tag' => 'break', 'options' => array( 'strength' => 'medium', 'time' => '3s'),'alternateTag' => ''),
+        'strong' => array('ssml_tag' => 'emphasis' , 'options' => array( 'level' => 'strong'),'alternateTag' => ''),
+        'emphasis' => array('ssml_tag' => 'emphasis' , 'options' => array( 'level' => 'moderate'),'alternateTag' => ''),
+        'amazon:effect' => array('ssml_tag' => 'amazon:effect' , 'options' => array('name' => 'whispered'),'alternateTag' => ''),
 
-    );
 
-    private $tagsToDelete = array(
-        'html' => ['deleteParent' => [''], 'deleteSelf' => ['']],
-        'body' => ['deleteParent' => [''], 'deleteSelf' => ['']],
-        'pre' => ['deleteParent' => ['emphasis'], 'deleteSelf' => ['p','s']],
-        'span' => ['deleteParent' => ['emphasis'], 'deleteSelf' => ['p','s']],
-        'div' => ['deleteParent' => ['emphasis'], 'deleteSelf' => ['p','s']],
-        'b' => ['deleteParent' => [''], 'deleteSelf' => ['emphasis','amazon:effect']],
-        'i' => ['deleteParent' => [''], 'deleteSelf' => ['emphasis','amazon:effect']],
-        'font' => ['deleteParent' => [''], 'deleteSelf' => ['emphasis','amazon:effect']],
-        'h1' => ['deleteParent' => [''], 'deleteSelf' => ['emphasis','amazon:effect']],
-        'h2' => ['deleteParent' => [''], 'deleteSelf' => ['emphasis','amazon:effect']],
-        'h3' => ['deleteParent' => [''], 'deleteSelf' => ['emphasis','amazon:effect']],
-        'h4' => ['deleteParent' => [''], 'deleteSelf' => ['emphasis','amazon:effect']],
-        'h5' => ['deleteParent' => [''], 'deleteSelf' => ['emphasis','amazon:effect']],
-        'h6' => ['deleteParent' => [''], 'deleteSelf' => ['emphasis','amazon:effect']],
-        'blockquote' => ['deleteParent' => ['emphasis'], 'deleteSelf' => ['p','s']],
-        'q' => ['deleteParent' => [''], 'deleteSelf' => ['emphasis','amazon:effect']],
-        'table' => ['deleteParent' => ['emphasis'], 'deleteSelf' => ['p','s']],
-        'th' => ['deleteParent' => [''], 'deleteSelf' => ['emphasis','amazon:effect']],
-        'tr' => ['deleteParent' => [''], 'deleteSelf' => ['emphasis','amazon:effect']],
-        'td' => ['deleteParent' => [''], 'deleteSelf' => ['emphasis','amazon:effect']],
-        'ol' => ['deleteParent' => [''], 'deleteSelf' => ['emphasis','amazon:effect']],
-        'ul' => ['deleteParent' => [''], 'deleteSelf' => ['emphasis','amazon:effect']],
-        'li' => ['deleteParent' => [''], 'deleteSelf' => ['emphasis','amazon:effect']],
-        'br' => ['deleteParent' => [''], 'deleteSelf' => ['']],
-        'break' => ['deleteParent' => [''], 'deleteSelf' => ['']],
-        'strong' => ['deleteParent' => [''], 'deleteSelf' => ['emphasis','amazon:effect']],
-        'p' =>  ['deleteParent' => ['emphasis'], 'deleteSelf' => ['p','s']],
-        'emphasis' => ['deleteParent' => [''], 'deleteSelf' => ['emphasis','amazon:effect']],
-        'amazon:effect' => ['deleteParent' => [''], 'deleteSelf' => ['emphasis','amazon:effect']],
 
     );
 
     private $allowedAttributes = ['level','name','strength','time','xml:lang','alphabet','ph','volume','rate','pitch','amazon:max-duration','interpret-as','alias','role','duration','frequency','phonation','vocal-tract-length'];
 
-    public function __construct(SsmlCreator $ssml = null)
-    {
-
-    }
+    private $parentNode = ['element' => ''];
 
     public function buildSsmlText($text)
     {
@@ -91,10 +58,9 @@ class SsmlCreator
         // remove doctype
         $html->removeChild($html->doctype);
 
+        $html = $this->setupBaseSSML($html);
 
-        $html = $this->convertTagsToSSML($html);
-
-        $html = $this->cleanUpSSML($html);
+        $html = $this->convertToSSML($html);
 
         $output = $html->saveHTML();
 
@@ -103,62 +69,132 @@ class SsmlCreator
         return trim($filteredOutput, "\n\r\t\v\0");
     }
 
-    private function convertTagsToSSML($html){
-        foreach ($this->html_elements as $element) {
-            if ($element == 'p') {
-                $elements = $html->getElementsByTagName($element);
+    private function setupBaseSSML($html){
+        foreach (['html','body'] as $element) {
+            $elements = $html->getElementsByTagName($element);
+            while ($elements->length > 0) {
+
                 foreach ($elements as $ele) {
                     $this->removeTagAttributes($ele);
+                    $nodeDiv = $this->changeTagName($ele, $this->html_element_map_to_ssml[$element]['ssml_tag']);
                 }
-            } else {
                 $elements = $html->getElementsByTagName($element);
-                while ($elements->length > 0) {
+            }
+        }
 
-                    foreach ($elements as $ele) {
-                        $this->removeTagAttributes($ele);
-                        $nodeDiv = $this->changeTagName($ele, $this->html_element_map_to_ssml[$element]['ssml_tag']);
+        return $html;
 
-                        if (!empty($this->html_element_map_to_ssml[$element]['options'])) {
-                            foreach ($this->html_element_map_to_ssml[$element]['options'] as $key => $attribute) {
-                                $domAttribute = $nodeDiv->setAttribute($key, $attribute);
-                            }
+    }
+
+    private function convertToSSML($html){
+        $rootElementList = $html->getElementsByTagName('amazon:auto-breaths');
+
+        $rootElement = $rootElementList->item(0);
+
+        //create childNode because childNodes will be changes and become un-reliable.
+        $childNodes = array();
+        foreach ( $rootElement->childNodes as $child ) {
+            $childNodes[] = $child;
+        }
+
+        foreach($childNodes as $childNode) {
+            if (!$childNode instanceof DOMText && !empty($childNode->tagName)) {
+                $childNode = $this->removeTagAttributes($childNode);
+                $newNode = $this->changeTagName($childNode, $this->html_element_map_to_ssml[$childNode->tagName]['ssml_tag']);
+                $this->parentNode['element'] = $this->html_element_map_to_ssml[$childNode->tagName]['ssml_tag'];
+
+                if (!empty($this->html_element_map_to_ssml[$childNode->tagName]['options'])) {
+                    foreach ($this->html_element_map_to_ssml[$childNode->tagName]['options'] as $key => $attribute) {
+                        $domAttribute = $newNode->setAttribute($key, $attribute);
+                    }
+                }
+            }
+            if($newNode->hasChildNodes() && $newNode->childElementCount > 0){
+                $this->cleanChildNodes($newNode->childNodes);
+            }
+
+            $this->parentNode['element'] = '';
+
+            $looksie = $html->saveHTML();
+
+        }
+
+        return $html;
+
+    }
+
+    private function cleanChildNodes($childNodes){
+
+        //create childNode because childNodes will be changes and become un-reliable.
+        $childNodesArray = array();
+        foreach ( $childNodes as $child ) {
+            $childNodesArray[] = $child;
+        }
+
+        foreach($childNodesArray as $childNode) {
+
+            if(!$childNode instanceof DOMText && !empty($childNode->tagName) && isset($this->parentNode['element']) && !empty($this->html_element_map_to_ssml[$childNode->tagName]['alternateTag']) ){
+                $childNode = $this->removeTagAttributes($childNode);
+                if($this->html_element_map_to_ssml[$childNode->tagName]['alternateTag'] == 'break'){
+
+                    $firstBreak = $childNode->parentNode->ownerDocument->createElement($this->html_element_map_to_ssml[$childNode->tagName]['alternateTag']);
+                    $secondBreak = $childNode->parentNode->ownerDocument->createElement($this->html_element_map_to_ssml[$childNode->tagName]['alternateTag']);
+                    if (!empty($this->html_element_map_to_ssml[$childNode->tagName]['alternateOptions'])) {
+                        foreach ($this->html_element_map_to_ssml[$childNode->tagName]['alternateOptions'] as $key => $attribute) {
+                            $firstBreak->setAttribute($key, $attribute);
+                            $secondBreak->setAttribute($key, $attribute);
+
                         }
                     }
-                    $elements = $html->getElementsByTagName($element);
 
+                    $newNode = $this->changeTagName($childNode, 'emphasis');
+                    foreach (['level' => 'reduced'] as $key => $attribute) {
+                        $newNode->setAttribute($key, $attribute);
+                    }
+
+                    $newNode->parentNode->insertBefore($firstBreak, $newNode);
+                    $newNode->parentNode->insertBefore($secondBreak, $newNode->nextSibling);
+                    //$childNode->parentNode->removeChild($childNode);
+
+                    if(!$newNode instanceof DOMText && !empty($newNode->tagName) && $newNode->hasChildNodes() ){
+                        $this->cleanChildNodes($newNode->childNodes);
+                    }
+
+                }else{
+                    $newNode = $this->changeTagName($childNode, $this->html_element_map_to_ssml[$childNode->tagName]['alternateTag']);
+                    if (!empty($this->html_element_map_to_ssml[$childNode->tagName]['options'])) {
+                        foreach ($this->html_element_map_to_ssml[$childNode->tagName]['options'] as $key => $attribute) {
+                            $domAttribute = $newNode->setAttribute($key, $attribute);
+                        }
+                    }
+
+                    if(!$newNode instanceof DOMText && !empty($newNode->tagName) && $newNode->hasChildNodes() ){
+                        $this->cleanChildNodes($newNode->childNodes);
+                    }
                 }
+
+
+            }elseif(!$childNode instanceof DOMText && !empty($childNode->tagName)){
+                $childNode = $this->removeTagAttributes($childNode);
+                $newNode = $this->changeTagName($childNode, $this->html_element_map_to_ssml[$childNode->tagName]['ssml_tag']);
+
+                if (!empty($this->html_element_map_to_ssml[$childNode->tagName]['options'])) {
+                    foreach ($this->html_element_map_to_ssml[$childNode->tagName]['options'] as $key => $attribute) {
+                        $domAttribute = $newNode->setAttribute($key, $attribute);
+                    }
+                }
+
+                if(!$newNode instanceof DOMText && !empty($newNode->tagName) && $newNode->hasChildNodes() ){
+                    $this->cleanChildNodes($newNode->childNodes);
+                }
+
             }
 
         }
 
-        return $html;
     }
 
-    private function cleanUpSSML($html) {
-        foreach ($this->html_elements as $element) {
 
-            $elements = $html->getElementsByTagName($element);
-
-            foreach ($elements as $ele) {
-                if(!empty($ele->tagName) && $ele->childElementCount > 0 && $ele->hasChildNodes()) {
-                    $this->cleanChildren($ele);
-                }
-
-                if(!empty($ele->parentNode->tagName) && in_array($ele->parentNode->tagName, $this->tagsToDelete[$ele->tagName]['deleteSelf']) ){
-                    $ele->parentNode->insertBefore($ele->lastChild, $ele->nextSibling);
-                    $ele->parentNode->removeChild($ele);
-                }
-
-                if(!empty($ele->parentNode->tagName) && in_array($ele->parentNode->tagName, $this->tagsToDelete[$ele->tagName]['deleteParent'])){
-                    $ele->parentNode->parentNode->insertBefore($ele->parentNode->lastChild, $ele->parentNode->nextSibling);
-                    $ele->parentNode->parentNode->removeChild($ele->parentNode);
-                }
-
-            }
-        }
-
-        return $html;
-    }
 
     private function cleanChildren($node){
         if($node->hasChildNodes()){
@@ -170,13 +206,13 @@ class SsmlCreator
                 }
 
                 if(!empty($childNode->tagName) && !empty($childNode->parentNode->tagName) &&  in_array($childNode->parentNode->tagName, $this->tagsToDelete[$childNode->tagName]['deleteSelf']) && !is_null($childNode->parentNode) && !is_null($childNode->lastChild) && !is_null($childNode->nextSibling)){
-                        $childNode->parentNode->insertBefore($childNode->lastChild, $childNode->nextSibling);
-                        $childNode->parentNode->removeChild($childNode);
+                    $childNode->parentNode->insertBefore($childNode->lastChild, $childNode->nextSibling);
+                    $childNode->parentNode->removeChild($childNode);
                 }
 
                 if(!empty($childNode->tagName) && !empty($childNode->parentNode->tagName) && in_array($childNode->parentNode->tagName, $this->tagsToDelete[$childNode->tagName]['deleteParent']) && !is_null($childNode->parentNode->parentNode) && !is_null($childNode->parentNode->lastChild) && !is_null($childNode->parentNode->nextSibling)){
-                        $childNode->parentNode->parentNode->insertBefore($childNode->parentNode->lastChild, $childNode->parentNode->nextSibling);
-                        $childNode->parentNode->parentNode->removeChild($childNode->parentNode);
+                    $childNode->parentNode->parentNode->insertBefore($childNode->parentNode->lastChild, $childNode->parentNode->nextSibling);
+                    $childNode->parentNode->parentNode->removeChild($childNode->parentNode);
                 }
 
             }
@@ -185,11 +221,13 @@ class SsmlCreator
 
 
     private function removeTagAttributes($element){
-        foreach ($element->attributes as $attr) {
-            if (!in_array($attr->nodeName, $this->allowedAttributes)) {
-                $element->removeAttribute($attr->nodeName);
+            foreach ($element->attributes as $attr) {
+                if (!in_array($attr->nodeName, $this->allowedAttributes)) {
+                    $element->removeAttribute($attr->nodeName);
+                }
             }
-        }
+
+            return $element;
     }
 
     public function stripHTML($html)
@@ -209,6 +247,7 @@ class SsmlCreator
             $childnodes[] = $child;
         }
         $newnode = $node->ownerDocument->createElement( $name );
+
         foreach ( $childnodes as $child ){
             $child2 = $node->ownerDocument->importNode( $child, true );
             $newnode->appendChild($child2);
@@ -220,11 +259,10 @@ class SsmlCreator
                 $newnode->setAttribute($attrName, $attrValue);
             }
         }
+
         $node->parentNode->replaceChild( $newnode, $node );
         return $newnode;
 
     }
-
-
 
 }
