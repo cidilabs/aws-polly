@@ -88,7 +88,11 @@ class AwsPollyFileConversionProvider
         if($options['TextType'] == 'ssml'){
             $ssmlService = new SsmlCreator();
             $ssmlText = $ssmlService->buildSsmlText($options['text']);
+            if(is_null($ssmlText)){
+                $this->responseObject['errors'][] = "SSML Text object ssmlText was set to null, meaning that in SsmlCreator class something went wrong and text was set to null";
+            }
         }
+
 
         try {
             $result = $this->pollyClient->startSpeechSynthesisTask([
