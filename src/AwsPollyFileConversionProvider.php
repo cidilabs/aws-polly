@@ -109,23 +109,7 @@ class AwsPollyFileConversionProvider
     }
 
     public function isReady($taskId) {
-
-        try {
-            $result = $this->pollyClient->getSpeechSynthesisTask([
-                'TaskId' => $taskId,
-            ]);
-
-            if($result["SynthesisTask"]["TaskStatus"] == "completed"){
-                $this->responseObject['data']['status'] = true;
-            }else {
-                $this->responseObject['data']['status'] = false;
-            }
-        } catch (AwsException $e) {
-            $this->responseObject['errors'][] = $e->getMessage();
-
-        }
-
-        return  $this->responseObject;
+        return $this->s3Client->doesObjectExist($this->s3bucket,"{$taskId}.{$this->pollyFormat}");
     }
 
     public function getFileUrl($taskId, $options = []) {
