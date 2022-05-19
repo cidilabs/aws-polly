@@ -68,6 +68,10 @@ class SsmlCreator
 
         $html = $this->convertToSSML($html);
 
+        if(is_null($html)){
+            return null;
+        }
+
         $output = $html->saveHTML();
 
         $filteredOutput = preg_replace('/&.*?;/im', '', $output);
@@ -99,6 +103,10 @@ class SsmlCreator
 
         $rootElement = $rootElementList->item(0);
 
+        if(is_null($rootElement) && !$rootElement->hasChildNodes()){
+            return null;
+        }
+
         //create childNode because childNodes will be changes and become un-reliable.
         $childNodes = array();
         foreach ( $rootElement->childNodes as $child ) {
@@ -106,7 +114,8 @@ class SsmlCreator
         }
 
         foreach($childNodes as $childNode) {
-            if (!$childNode instanceof DOMText && !empty($childNode->tagName)) {
+            $newNode = null;
+            if (!$childNode instanceof DOMText && !empty($childNode->tagName) && !is_null($childNode)) {
                 $childNode = $this->removeTagAttributes($childNode);
                 $newNode = $this->changeTagName($childNode, $this->html_element_map_to_ssml[$childNode->tagName]['ssml_tag']);
                 $this->parentNode['element'] = $this->html_element_map_to_ssml[$childNode->tagName]['ssml_tag'];
@@ -117,13 +126,11 @@ class SsmlCreator
                     }
                 }
             }
-            if($newNode->hasChildNodes() && $newNode->childElementCount > 0){
+            if(!is_null($newNode) && $newNode->hasChildNodes() && $newNode->childElementCount > 0){
                 $this->cleanChildNodes($newNode->childNodes);
             }
 
             $this->parentNode['element'] = '';
-
-            $looksie = $html->saveHTML();
 
         }
 
@@ -140,8 +147,8 @@ class SsmlCreator
         }
 
         foreach($childNodesArray as $childNode) {
-
-            if(!$childNode instanceof DOMText && !empty($childNode->tagName) && isset($this->parentNode['element']) && !empty($this->html_element_map_to_ssml[$childNode->tagName]['alternateTag']) ){
+            $newNode = null;
+            if(!is_null($childNode) && !$childNode instanceof DOMText && !empty($childNode->tagName) && isset($this->parentNode['element']) && !empty($this->html_element_map_to_ssml[$childNode->tagName]['alternateTag'])  ){
                 $childNode = $this->removeTagAttributes($childNode);
                 if($this->html_element_map_to_ssml[$childNode->tagName]['alternateTag'] == 'break'){
 
@@ -164,7 +171,7 @@ class SsmlCreator
                     $newNode->parentNode->insertBefore($secondBreak, $newNode->nextSibling);
                     //$childNode->parentNode->removeChild($childNode);
 
-                    if(!$newNode instanceof DOMText && !empty($newNode->tagName) && $newNode->hasChildNodes() ){
+                    if(!is_null($newNode) && !$newNode instanceof DOMText && !empty($newNode->tagName) && $newNode->hasChildNodes() ){
                         $this->cleanChildNodes($newNode->childNodes);
                     }
 
@@ -176,13 +183,13 @@ class SsmlCreator
                         }
                     }
 
-                    if(!$newNode instanceof DOMText && !empty($newNode->tagName) && $newNode->hasChildNodes() ){
+                    if(!is_null($newNode) && !$newNode instanceof DOMText && !empty($newNode->tagName) && $newNode->hasChildNodes()){
                         $this->cleanChildNodes($newNode->childNodes);
                     }
                 }
 
 
-            }elseif(!$childNode instanceof DOMText && !empty($childNode->tagName)){
+            }elseif(!$childNode instanceof DOMText && !empty($childNode->tagName) && !is_null($childNode)){
                 $childNode = $this->removeTagAttributes($childNode);
                 $newNode = $this->changeTagName($childNode, $this->html_element_map_to_ssml[$childNode->tagName]['ssml_tag']);
 
@@ -192,7 +199,7 @@ class SsmlCreator
                     }
                 }
 
-                if(!$newNode instanceof DOMText && !empty($newNode->tagName) && $newNode->hasChildNodes() ){
+                if(!is_null($newNode) && !$newNode instanceof DOMText && !empty($newNode->tagName) && $newNode->hasChildNodes()){
                     $this->cleanChildNodes($newNode->childNodes);
                 }
 
@@ -202,30 +209,6 @@ class SsmlCreator
 
     }
 
-
-
-    private function cleanChildren($node){
-        if($node->hasChildNodes()){
-            foreach($node->childNodes as $childNode) {
-                if(!empty($childNode->tagName) && $childNode->hasChildNodes() ){
-                    foreach($childNode->childNodes as $child) {
-                        $this->cleanChildren($child);
-                    }
-                }
-
-                if(!empty($childNode->tagName) && !empty($childNode->parentNode->tagName) &&  in_array($childNode->parentNode->tagName, $this->tagsToDelete[$childNode->tagName]['deleteSelf']) && !is_null($childNode->parentNode) && !is_null($childNode->lastChild) && !is_null($childNode->nextSibling)){
-                    $childNode->parentNode->insertBefore($childNode->lastChild, $childNode->nextSibling);
-                    $childNode->parentNode->removeChild($childNode);
-                }
-
-                if(!empty($childNode->tagName) && !empty($childNode->parentNode->tagName) && in_array($childNode->parentNode->tagName, $this->tagsToDelete[$childNode->tagName]['deleteParent']) && !is_null($childNode->parentNode->parentNode) && !is_null($childNode->parentNode->lastChild) && !is_null($childNode->parentNode->nextSibling)){
-                    $childNode->parentNode->parentNode->insertBefore($childNode->parentNode->lastChild, $childNode->parentNode->nextSibling);
-                    $childNode->parentNode->parentNode->removeChild($childNode->parentNode);
-                }
-
-            }
-        }
-    }
 
 
     private function removeTagAttributes($element){
