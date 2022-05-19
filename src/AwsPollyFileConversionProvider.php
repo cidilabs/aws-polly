@@ -82,21 +82,23 @@ class AwsPollyFileConversionProvider
 
     }
 
-
     public function convertFile($options) {
 
         if($options['TextType'] == 'ssml'){
             $ssmlService = new SsmlCreator();
-            $ssmlText = $ssmlService->buildSsmlText($options['text']);
-            if(is_null($ssmlText)){
+            $ssml = $ssmlService->buildSsmlText($options['text']);
+            if(is_null($ssml['ssml'])){
                 $this->responseObject['errors'][] = "SSML Text object ssmlText was set to null, meaning that in SsmlCreator class something went wrong and text was set to null";
+            }
+            if(!empty($ssml['errors'])){
+                $this->responseObject['errors'][] = $ssml['errors'];
             }
         }
 
 
         try {
             $result = $this->pollyClient->startSpeechSynthesisTask([
-                'Text' => $ssmlText ? $ssmlText : $options['text'],
+                'Text' => !is_null($ssml['ssml']) ? $ssml['ssml'] : $options['text'],
                 'TextType' => $options['TextType'],
                 'OutputFormat' => $this->pollyFormat,
                 'OutputS3BucketName' => $options['S3Bucket'],
@@ -113,23 +115,7 @@ class AwsPollyFileConversionProvider
     }
 
     public function isReady($taskId) {
-
-        try {
-            $result = $this->pollyClient->getSpeechSynthesisTask([
-                'TaskId' => $taskId,
-            ]);
-
-            if($result["SynthesisTask"]["TaskStatus"] == "completed"){
-                $this->responseObject['data']['status'] = true;
-            }else {
-                $this->responseObject['data']['status'] = false;
-            }
-        } catch (AwsException $e) {
-            $this->responseObject['errors'][] = $e->getMessage();
-
-        }
-
-        return  $this->responseObject;
+        return $this->s3Client->doesObjectExist($this->s3bucket,"{$taskId}.{$this->pollyFormat}");
     }
 
     public function getFileUrl($taskId, $options = []) {
