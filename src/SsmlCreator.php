@@ -48,12 +48,18 @@ class SsmlCreator
 
     private $parentNode = ['element' => ''];
 
+    private $data = [
+        'ssml' => '',
+        'errors' => ''
+    ];
+
     public function buildSsmlText($text)
     {
         $strippedHtml = $this->stripHTML($text);
         $html = new DOMDocument();
         libxml_use_internal_errors(true);
         $html->loadHTML($strippedHtml);
+        $data['errors'] = libxml_get_errors();
 
         // remove doctype
         $html->removeChild($html->doctype);
@@ -66,7 +72,9 @@ class SsmlCreator
 
         $filteredOutput = preg_replace('/&.*?;/im', '', $output);
 
-        return trim($filteredOutput, "\n\r\t\v\0");
+        $data['ssml'] = is_null($html) ? null : trim($filteredOutput, "\n\r\t\v\0");
+        
+        return $data;
     }
 
     private function setupBaseSSML($html){
