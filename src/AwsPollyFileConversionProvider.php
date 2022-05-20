@@ -119,18 +119,11 @@ class AwsPollyFileConversionProvider
     }
 
     public function getFileUrl($taskId, $options = []) {
-
         try {
-            $result = $this->pollyClient->getSpeechSynthesisTask([
-                'TaskId' => $taskId,
-            ]);
-
             $this->responseObject['data']['filePath'] = $this->downloadFile($this->s3bucket,"{$taskId}.{$this->pollyFormat}");
-            $this->responseObject['data']['status'] = true;
         } catch (AwsException $e) {
             $this->responseObject['errors'][] = $e->getMessage();
         }
-
         return  $this->responseObject;
 
     }
