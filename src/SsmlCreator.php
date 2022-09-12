@@ -40,8 +40,6 @@ class SsmlCreator
         'emphasis' => array('ssml_tag' => 'emphasis' , 'options' => array( 'level' => 'moderate'),'alternateTag' => ''),
         'amazon:effect' => array('ssml_tag' => 'amazon:effect' , 'options' => array('name' => 'whispered'),'alternateTag' => ''),
 
-
-
     );
 
     private $allowedAttributes = ['level','name','strength','time','xml:lang','alphabet','ph','volume','rate','pitch','amazon:max-duration','interpret-as','alias','role','duration','frequency','phonation','vocal-tract-length'];
@@ -55,7 +53,8 @@ class SsmlCreator
 
     public function buildSsmlText($text)
     {
-        $strippedHtml = $this->stripHTML($text);
+        $preCleanedHtml = $this->cleanUpBeforeDomDoc($text);
+        $strippedHtml = $this->stripHTML($preCleanedHtml);
         $html = new DOMDocument();
         libxml_use_internal_errors(true);
         $html->loadHTML($strippedHtml);
@@ -176,6 +175,7 @@ class SsmlCreator
                     }
 
                 }else{
+                    $childNode = $this->removeTagAttributes($childNode);
                     $newNode = $this->changeTagName($childNode, $this->html_element_map_to_ssml[$childNode->tagName]['alternateTag']);
                     if (!empty($this->html_element_map_to_ssml[$childNode->tagName]['options'])) {
                         foreach ($this->html_element_map_to_ssml[$childNode->tagName]['options'] as $key => $attribute) {
@@ -211,14 +211,20 @@ class SsmlCreator
 
 
 
-    private function removeTagAttributes($element){
-            foreach ($element->attributes as $attr) {
-                if (!in_array($attr->nodeName, $this->allowedAttributes)) {
-                    $element->removeAttribute($attr->nodeName);
-                }
+    private function removeTagAttributes($node){
+        $childNodesAttArray = array();
+        foreach ( $node->attributes as $attr ) {
+            $childNodesAttArray[] = $attr;
+        }
+        
+        foreach ($childNodesAttArray as $attr) {
+            if (!in_array($attr->nodeName, $this->allowedAttributes)) {
+                // $node->removeAttributeNode($attr);
+                $node->removeAttribute($attr->nodeName);
             }
+        }
 
-            return $element;
+        return $node;
     }
 
     public function stripHTML($html)
@@ -254,6 +260,25 @@ class SsmlCreator
         $node->parentNode->replaceChild( $newnode, $node );
         return $newnode;
 
+    }
+
+    private function cleanUpBeforeDomDoc($html) {
+
+        $dom = new DOMDocument();
+        libxml_use_internal_errors(true);
+        $dom->loadHTML($html);
+
+        // remove doctype
+        $dom->removeChild($dom->doctype);
+
+        $head = $dom->getElementsByTagName('head');
+
+        if($head = $dom->getElementsByTagName('head')->item(0)) {
+
+            $head->parentNode->removeChild($head);
+        }
+
+        return $dom->saveHTML();
     }
 
 }
