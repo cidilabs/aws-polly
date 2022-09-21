@@ -38,13 +38,17 @@ environment:
 - **fileName**: The name of the file
 - **fileUrl**: The download URL for the file
 - **fileType**: The file type of the original file
-- **format**: The file type that we want to convert to
+- **format**: The file type that we want to convert to (usually mp3)
+- **S3Bucket**: Bucket in S3 you want to place the file in.
+- **voice**: voice you want to use
+- **TextType**:  MUST be ssml or text
+- **text**: html that you want to convert
 ```
 $polly =  new  AwsPollyFileConversionProvider();
 
 $fileUrl =  "https://cidilabs.instructure.com/files/295964/download?download_frd=1&verifier=RZwKCP3iVlNQIULZnTAXO0usUROMC9AuplKkDf2g";
 
-$options =  array('fileUrl'  => $fileUrl,  'fileType'  =>  'pdf',  'format'  =>  'html',  'fileName'  =>  'Test1.pdf');
+$options =  array('fileUrl'  => $fileUrl,  'fileType'  =>  'pdf',  'format'  =>  'mp3',  'fileName'  =>  'Test1.pdf', 'S3Bucket' => 'polly' , 'voice' => 'Joanna', 'TextType' => 'ssml', 'text' => 'sample text');
 
 $polly->convertFile($options);
 ```
