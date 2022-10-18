@@ -14,8 +14,8 @@
         }
     ],
     "require": {
-        "php": ">=7.2.0",
-        "guzzlehttp/guzzle": "^7.0",
+        "php": ">=8.0",
+        "guzzlehttp/guzzle": "7.5.0",
         "aws/aws-sdk-php": "^3.198"
     },
     "scripts": {
