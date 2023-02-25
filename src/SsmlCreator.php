@@ -53,15 +53,12 @@ class SsmlCreator
 
     public function buildSsmlText($text)
     {
-        $preCleanedHtml = $this->cleanUpBeforeDomDoc($text);
-        $strippedHtml = $this->stripHTML($preCleanedHtml);
+        $strippedHtml = $this->stripHTML($text);
         $html = new DOMDocument();
         libxml_use_internal_errors(true);
         $html->loadHTML($strippedHtml);
-        $data['errors'] = libxml_get_errors();
-
-        // remove doctype
-        $html->removeChild($html->doctype);
+        $html = $this->cleanUpDomDoc($html);
+        // $data['errors'] = libxml_get_errors();
 
         $html = $this->setupBaseSSML($html);
 
@@ -262,11 +259,7 @@ class SsmlCreator
 
     }
 
-    private function cleanUpBeforeDomDoc($html) {
-
-        $dom = new DOMDocument();
-        libxml_use_internal_errors(true);
-        $dom->loadHTML($html);
+    private function cleanUpDomDoc($dom) {
 
         // remove doctype
         $dom->removeChild($dom->doctype);
@@ -278,7 +271,7 @@ class SsmlCreator
             $head->parentNode->removeChild($head);
         }
 
-        return $dom->saveHTML();
+        return $dom;
     }
 
 }
